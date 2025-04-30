@@ -1,0 +1,368 @@
+<div id="write" class="">
+    <h1 id="building-a-highly-available-scalable-web-application"><span>Building a Highly Available, Scalable Web
+            Application</span></h1>
+    <p>&nbsp;</p>
+    <h2 id="overview-and-objectives"><span>Overview and objectives</span></h2>
+    <p><span>Throughout various AWS Academy courses, you have completed hands-on labs. You have used different AWS
+            services and features to create compute instances, install operating systems (OSs) and software, deploy
+            code, and secure resources. You practiced how to enable load balancing and automatic scaling, and how to
+            architect for high availability to build simple, lab-specific applications.</span></p>
+    <p><span>In this project, you’re challenged to use familiar AWS services to build a solution
+        </span><em><span>without</span></em><span> step-by-step guidance. Specific sections of the assignment are meant
+            to challenge you on skills that you have acquired throughout the learning process.</span></p>
+    <p><span>By the end of this project, you should be able to do the following:</span></p>
+    <ul>
+        <li><span>Create an architectural diagram to depict various AWS services and their interactions with each
+                other.</span></li>
+        <li><span>Estimate the cost of using services by using the AWS Pricing Calculator.</span></li>
+        <li><span>Deploy a functional web application that runs on a single virtual machine and is backed by a
+                relational database.</span></li>
+        <li><span>Architect a web application to separate layers of the application, such as the web server and
+                database.</span></li>
+        <li><span>Create a virtual network that is configured appropriately to host a web application that is publicly
+                accessible and secure.</span></li>
+        <li><span>Deploy a web application with the load distributed across multiple web servers.</span></li>
+        <li><span>Configure the appropriate network security settings for the web servers and database.</span></li>
+        <li><span>Implement high availability and scalability in the deployed solution. </span></li>
+        <li><span>Configure access permissions between AWS services.</span></li>
+    </ul>
+    <h2 id="the-lab-environment-and-monitoring-your-budget"><span>The lab environment and monitoring your budget</span>
+    </h2>
+    <p><strong><span>This environment is long lived</span></strong><span>. When the session timer runs to 0:00, the
+            session will end, but any data and resources that you created in the AWS account will be retained. If you
+            later launch a new session (for example, the next day), you will find that your work is still in the lab
+            environment. Also, at any point before the session timer reaches 0:00, you can choose
+        </span><strong><span>Start Lab</span></strong><span> again to extend the lab session time.</span></p>
+    <p><i class="fa-solid fa-circle-exclamation" aria-label="Important icon"></i><span>
+        </span><strong><span>Important:</span></strong><span> Monitor your lab budget in the lab interface. When you
+            have an active lab session, the latest known remaining budget information displays at the top of this
+            screen. This data comes from AWS Budgets, which typically updates every 8–12 hours. Therefore,
+        </span><em><span>the remaining budget that you see might not reflect your most recent account
+                activity</span></em><span>. </span><strong><span>If you exceed your lab budget, your lab account will be
+                disabled, and all progress and resources will be lost</span></strong><span>. Therefore, it’s important
+            for you to manage your spending.</span></p>
+    <h2 id="aws-service-restrictions"><span>AWS service restrictions</span></h2>
+    <p><span>In this lab environment, access to AWS services and service actions might be restricted to the ones that
+            are needed to complete the lab instructions. You might encounter errors if you attempt to access other
+            services or perform actions beyond the ones that are described in this lab.</span></p>
+    <p>&nbsp;</p>
+    <h2 id="scenario"><span>Scenario</span></h2>
+    <p><span>Example University is preparing for the new school year. The admissions department has received complaints
+            that their web application for student records is slow or not available during the peak admissions period
+            because of the high number of inquiries.</span></p>
+    <p><span>You are a cloud engineer. Your manager has asked you to create a proof of concept (POC) to host the web
+            application in the AWS Cloud. Your manager would like you to design and implement a new hosting architecture
+            that will improve the experience for users of the web application. You’re responsible for building the
+            infrastructure to host the student records web application in the cloud.</span></p>
+    <p><span>Your challenge is to plan, design, build, and deploy the web application to the AWS Cloud in a way that is
+            consistent with best practices of the AWS Well-Architected Framework. During the peak admissions period, the
+            application must support thousands of users, and be highly available, scalable, load balanced, secure, and
+            high performing.</span></p>
+    <p><span>The following image shows an example of the student records web application. The site lists records of
+            students who have applied for admission to the university. Users can view, add, delete, and modify student
+            records.</span></p>
+    <p><img src="images/SampleSite.png" referrerpolicy="no-referrer" alt="Sample website."></p>
+    <h2 id="solution-requirements"><span>Solution requirements</span></h2>
+    <p><span>The solution must meet the following requirements:</span></p>
+    <ul>
+        <li>
+            <p><strong><span>Functional:</span></strong><span> The solution meets the functional requirements, such as
+                    the ability to view, add, delete, or modify the student records, without any perceivable
+                    delay.</span></p>
+        </li>
+        <li>
+            <p><strong><span>Load balanced:</span></strong><span> The solution can properly balance user traffic to
+                    avoid overloaded or underutilized resources.</span></p>
+        </li>
+        <li>
+            <p><strong><span>Scalable:</span></strong><span> The solution is designed to scale to meet the demands that
+                    are placed on the application.</span></p>
+        </li>
+        <li>
+            <p><strong><span>Highly available:</span></strong><span> The solution is designed to have limited downtime
+                    when a web server becomes unavailable.</span></p>
+        </li>
+        <li>
+            <p><strong><span>Secure:</span></strong></p>
+            <ul>
+                <li><span>The database is secured and can’t be accessed directly from public networks.</span></li>
+                <li><span>The web servers and database can be accessed only over the appropriate ports.</span></li>
+                <li><span>The web application is accessible over the internet.</span></li>
+                <li><span>The database credentials aren’t hardcoded into the web application.</span></li>
+            </ul>
+        </li>
+        <li>
+            <p><strong><span>Cost optimized:</span></strong><span> The solution is designed to keep costs low.</span>
+            </p>
+        </li>
+        <li>
+            <p><strong><span>High performing:</span></strong><span> The routine operations (viewing, adding, deleting,
+                    or modifying records) are performed without a perceivable delay under normal, variable, and peak
+                    loads.</span></p>
+        </li>
+    </ul>
+    <p>&nbsp;</p>
+    <p><strong><span>Assumptions</span></strong></p>
+    <p><span>This project will be built in a controlled lab environment that has restrictions on services, features, and
+            budget. Consider the following assumptions for the project:</span></p>
+    <ul>
+        <li><span>The application is deployed in one AWS Region (the solution does not need to be
+                multi-Regional).</span></li>
+        <li><span>The website does not need to be available over HTTPS or a custom domain.</span></li>
+        <li><span>The solution is deployed on </span><em><span>Ubuntu</span></em><span> machines by using the JavaScript
+                code that is provided.</span></li>
+        <li><span>Use the JavaScript code as written unless the instructions specifically direct you to change the
+                code.</span></li>
+        <li><span>The solution uses services and features within the restrictions of the lab environment.</span></li>
+        <li><span>The database is hosted only in a single Availability Zone.</span></li>
+        <li><span>The website is publicly accessible without authentication.</span></li>
+        <li><span>Estimation of cost is approximate.</span></li>
+    </ul>
+    <p><strong><span>Disclaimer:</span></strong><span> A security best practice is to allow access to the website
+            through the university network and authentication. However, because you are building this application as a
+            POC, those features are beyond the scope of this project. You are encouraged to implement this additional
+            functionality.</span></p>
+    <p>&nbsp;</p>
+    <h2 id="approach"><span>Approach</span></h2>
+    <p><strong><span>Recommendation:</span></strong><span> Develop your project solution in phases. This will help you
+            ensure that basic functionality is working before the architecture becomes more complex. After the
+            application is working, you are encouraged to enhance the solution with additional requirements.</span></p>
+    <p>&nbsp;</p>
+    <h3 id="phase-1-planning-the-design-and-estimating-cost"><span>Phase 1: Planning the design and estimating
+            cost</span></h3>
+    <p><span>In this phase, you will plan the design of your architecture. First, you will create an architecture
+            diagram. </span></p>
+    <p><span>Next, you will estimate the cost of the proposed solution, and present the estimate to your educator. An
+            important first step for any solution is to plan the design and estimate the cost. As necessary, review the
+            various components in the architecture to adjust the estimated cost. Cost is an important factor when
+            building a solution because cost can help to determine the components and architecture pattern to use.
+        </span></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span>
+        </span><strong><span>Note:</span></strong><span> You don't need to use the lab environment for this phase of the
+            project, but you might want to use it to refer to AWS services and features as you plan your design.</span>
+    </p>
+    <h4 id="task-1-creating-an-architectural-diagram"><span>Task 1: Creating an architectural diagram</span></h4>
+    <p><span>Create an architectural diagram to illustrate what you plan to build. Consider how you will accomplish each
+            requirement in the solution.</span></p>
+    <p><strong><span>References</span></strong></p>
+    <ul>
+        <li><a href="https://aws.amazon.com/architecture/icons" target="_blank" rel="noopener noreferrer"><span>AWS
+                    Architecture Icons</span></a><span>: This site provides tools to draw AWS architecture
+                diagrams.</span></li>
+        <li><a href="https://aws.amazon.com/architecture/reference-architecture-diagrams" target="_blank"
+                rel="noopener noreferrer"><span>AWS Reference Architecture Diagrams</span></a><span>: This site provides
+                reference architecture diagrams for a variety of use cases.</span></li>
+    </ul>
+    <h4 id="task-2-developing-a-cost-estimate"><span>Task 2: Developing a cost estimate</span></h4>
+    <p><span>Develop a cost estimate that shows the cost to run the solution in the us-east-1 Region for 12 months. Use
+            the </span><a href="https://calculator.aws" target="_blank" rel="noopener noreferrer"><span>AWS Pricing
+                Calculator</span></a><span> for this estimate.</span></p>
+    <p><span>If required by your instructor, add your architectural diagram and cost estimate to presentation slides.
+            Your educator might want to evaluate this information as part of assessing your work on this project. A
+            presentation template is provided.</span></p>
+    <p><strong><span>References</span></strong></p>
+    <ul>
+        <li><a href="https://docs.aws.amazon.com/pricing-calculator/latest/userguide/what-is-pricing-calculator.html"
+                target="_blank" rel="noopener noreferrer"><span>What Is AWS Pricing Calculator?</span></a></li>
+        <li><a href="https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCAP1-1-91571/1-lab-capstone-project-1/s3/Academy_Lab_Projects_Showcase_template.pptx"
+                target="_blank" rel="noopener noreferrer"><span>PowerPoint presentation template</span></a></li>
+    </ul>
+    <h3 id="phase-2-creating-a-basic-functional-web-application"><span>Phase 2: Creating a basic functional web
+            application</span></h3>
+    <p><span>In this phase, you will start to build the solution. The objective of this phase is to have a functional
+            web application that works on a single virtual machine in a virtual network that you create. By the end of
+            this phase, you will have a POC to demonstrate hosting the application on the AWS Cloud. You can then build
+            upon your work in later phases.</span></p>
+    <h4 id="task-1-creating-a-virtual-network"><span>Task 1: Creating a virtual network</span></h4>
+    <p><span>Create a virtual network to host the web application.</span></p>
+    <p><i class="fa-solid fa-lightbulb" aria-label="Tip icon"></i><span> </span><strong><span>Tip:</span></strong><span>
+            Create networking resources such as a virtual private cloud (VPC) and subnets.</span></p>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Architecting – Lab: Creating a Virtual Private Cloud</span></li>
+    </ul>
+    <h4 id="task-2-creating-a-virtual-machine"><span>Task 2: Creating a virtual machine</span></h4>
+    <p><span>Create a virtual machine in the cloud to host the web application.</span></p>
+    <p><span>To install the required web application and database on the virtual machine, use the JavaScript code from
+            the following link: </span><a
+            href="https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCAP1-1-91571/1-lab-capstone-project-1/s3/UserdataScript-phase-2.sh"
+            target="_blank" rel="noopener noreferrer"><span>SolutionCodePOC</span></a></p>
+    <p><strong><span>Tips:</span></strong></p>
+    <ul>
+        <li><span>Use a compute service such as Amazon Elastic Compute Cloud (Amazon EC2).</span></li>
+        <li><span>Use the latest Ubuntu Amazon Machine Image (AMI).</span></li>
+    </ul>
+    <h4 id="task-3-testing-the-deployment"><span>Task 3: Testing the deployment</span></h4>
+    <p><span>Test the deployment of the web application to ensure it is accessible from the internet and functional.
+            Perform a few tasks, such as viewing, adding, deleting, or modifying records.</span></p>
+    <p><i class="fa-solid fa-lightbulb" aria-label="Tip icon"></i><span> </span><strong><span>Tip:</span></strong><span>
+            To access the web application, use the IPv4 address of the virtual machine.</span></p>
+    <h3 id="phase-3-decoupling-the-application-components"><span>Phase 3: Decoupling the application components</span>
+    </h3>
+    <p><span>In this phase, you will continue building. The objective is to separate the database and the web server
+            infrastructure so that they run independently. The web application should run on a separate virtual machine,
+            and the database should run on the managed service infrastructure.</span></p>
+    <h4 id="task-1-changing-the-vpc-configuration"><span>Task 1: Changing the VPC configuration</span></h4>
+    <p><span>Update or re-create the virtual network components that are necessary to support hosting the database
+            separately from the application.</span></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span>
+        </span><strong><span>Note:</span></strong><span> You need private subnets in a minimum of two Availability
+            Zones.</span></p>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Architecting – Lab: Creating a Virtual Private Cloud</span></li>
+    </ul>
+    <h4 id="task-2-creating-and-configuring-the-amazon-rds-database"><span>Task 2: Creating and configuring the Amazon
+            RDS database</span></h4>
+    <p><span>Create an Amazon Relational Database Service (Amazon RDS) database that runs a MySQL engine. You can choose
+            to create a provisioned instance or run it serverlessly.</span></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span> </span><strong><span>Notes:</span></strong>
+    </p>
+    <ul>
+        <li><span>Allow only the web application to access the database.</span></li>
+        <li><span>Don't enable enhanced monitoring.</span></li>
+    </ul>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Foundations – Lab: Build Your DB Server and Interact With Your DB Using an
+                App</span></li>
+    </ul>
+    <h4 id="task-3-configuring-the-development-environment"><span>Task 3: Configuring the development environment</span>
+    </h4>
+    <p><span>Provision an AWS Cloud9 environment to run AWS Command Line Interface (AWS CLI) commands in later
+            tasks.</span></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span> </span><strong><span>Notes:</span></strong>
+    </p>
+    <ul>
+        <li><span>Use a t3.micro instance for the AWS Cloud9 environment.</span></li>
+        <li><span>Use Secure Shell (SSH) to connect to the environment.</span></li>
+    </ul>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><a href="https://docs.aws.amazon.com/cloud9/latest/user-guide/create-environment-main.html" target="_blank"
+                rel="noopener noreferrer"><span>Creating Cloud9 Environment</span></a></li>
+    </ul>
+    <h4 id="task-4-provisioning-secrets-manager"><span>Task 4: Provisioning Secrets Manager</span></h4>
+    <p><span>Use AWS Secrets Manager to create a secret to store the database credentials, and configure the web
+            application to use Secrets Manager.</span></p>
+    <p><span>Use </span><em><span>Script-1</span></em><span> from the following link to create a secret in Secrets
+            Manager by using the AWS CLI: </span><a
+            href="https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCAP1-1-91571/1-lab-capstone-project-1/s3/cloud9-scripts.yml"
+            target="_blank" rel="noopener noreferrer"><span>AWS Cloud9 Scripts</span></a></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span>
+        </span><strong><span>Note:</span></strong><span> This .yml file also contains scripts that you will use in later
+            tasks.</span></p>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><a href="https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/create-secret.html" target="_blank"
+                rel="noopener noreferrer"><span>create-secret in the AWS CLI Command Reference for AWS Secrets
+                    Manager</span></a></li>
+    </ul>
+    <h4 id="task-5-provisioning-a-new-instance-for-the-web-server"><span>Task 5: Provisioning a new instance for the web
+            server</span></h4>
+    <p><span>Create a new virtual machine to host the web application.</span></p>
+    <p><span>To install the required web application on the virtual machine, use the JavaScript code from the following
+            link: </span><a
+            href="https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCAP1-1-91571/1-lab-capstone-project-1/s3/UserdataScript-phase-3.sh"
+            target="_blank" rel="noopener noreferrer"><span>Solution Code for the App Server</span></a></p>
+    <p><span>For the AWS Identity and Access Management (IAM) profile on the EC2 instance, attach the existing
+        </span><em><span>LabInstanceProfile</span></em><span> profile. This profile attaches an IAM role called
+        </span><em><span>LabRole</span></em><span> to the instance so that it can fetch the secret securely.</span></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span>
+        </span><strong><span>Note:</span></strong><span> Optionally, you can continue to use the existing virtual
+            machine for the web application. However, you will need to reconfigure the application to connect to Amazon
+            RDS. </span></p>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Foundations – Lab: Build Your DB Server and Interact With Your DB Using an
+                App</span></li>
+    </ul>
+    <h4 id="task-6-migrating-the-database"><span>Task 6: Migrating the database</span></h4>
+    <p><span>Migrate the data from the original database, which is on an EC2 instance, to the new Amazon RDS
+            database.</span></p>
+    <p><span>Use </span><em><span>Script-3</span></em><span> from the AWS Cloud9 Scripts file (cloud9-scripts.yml) to
+            migrate the original data into the Amazon RDS database. Recall that you used a script from this file earlier
+            to create the secret in Secrets Manager.</span></p>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Architecting – Lab: Migrating a Database to Amazon RDS</span></li>
+    </ul>
+    <h4 id="task-7-testing-the-application"><span>Task 7: Testing the application</span></h4>
+    <p><span>Access the application and perform a few tasks to test it. For example, view, add, delete, and modify
+            student records.</span></p>
+    <p>&nbsp;</p>
+    <h3 id="phase-4-implementing-high-availability-and-scalability"><span>Phase 4: Implementing high availability and
+            scalability</span></h3>
+    <p><span>In this phase, you will complete the design and fulfill the remaining solution requirements. The objective
+            is to use the key components that you created in earlier phases to build a scalable and highly available
+            architecture.</span></p>
+    <h4 id="task-1-creating-an-application-load-balancer"><span>Task 1: Creating an Application Load Balancer</span>
+    </h4>
+    <p><span>Launch a load balancer. The endpoint will be used to access your web application.</span></p>
+    <p><i class="fa-solid fa-lightbulb" aria-label="Tip icon"></i><span> </span><strong><span>Tip:</span></strong><span>
+            Use a minimum of two Availability Zones.</span></p>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Architecting – Lab: Creating a Highly Available Environment</span></li>
+    </ul>
+    <h4 id="task-2-implementing-amazon-ec2-auto-scaling"><span>Task 2: Implementing Amazon EC2 Auto Scaling</span></h4>
+    <p><span>Create a new launch template, and use an Auto Scaling group to launch the EC2 instances that host the web
+            application.</span></p>
+    <p><span>To accomplish this, you can create an AMI from the running instance, or create a new AMI and install the
+            necessary packages and application code. Then, configure an Auto Scaling group to use the load
+            balancer.</span></p>
+    <p><strong><span>Tips:</span></strong></p>
+    <ul>
+        <li><span>Use a Target tracking policy.</span></li>
+        <li><span>Set the Auto scaling group size according to your estimated requirements.</span></li>
+        <li><span>You can use the default values (for example, for group size and CPU utilization) initially and then
+                adjust them later as needed.</span></li>
+    </ul>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><span>AWS Academy Cloud Architecting – Lab: Creating a Highly Available Environment</span></li>
+    </ul>
+    <h4 id="task-3-accessing-the-application"><span>Task 3: Accessing the application</span></h4>
+    <p><span>Access the application and perform a few tasks to test it. For example, view, add, delete, and modify
+            student records.</span></p>
+    <h4 id="task-4-load-testing-the-application"><span>Task 4: Load testing the application</span></h4>
+    <p><span>Perform a load test on the application to monitor scaling. </span></p>
+    <p><span>Use </span><em><span>Script-2</span></em><span> from the AWS Cloud9 Scripts file (cloud9-scripts.yml) to
+            perform the load test. Recall that you used scripts from this file in previous tasks.</span></p>
+    <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span> </span><strong><span>Notes:</span></strong>
+    </p>
+    <ul>
+        <li><span>Access the web application from the browser by using the load balancer URL.</span></li>
+        <li><span>Use AWS Cloud9 to run the load testing scripts against the load balancer.</span></li>
+    </ul>
+    <p><strong><span>Reference</span></strong></p>
+    <ul>
+        <li><a href="https://github.com/alexfernandez/loadtest" target="_blank" rel="noopener noreferrer"><span>loadtest
+                    Tool Repository on GitHub</span></a></li>
+    </ul>
+    <p>&nbsp;</p>
+    <h2 id="ending-your-session"><span>Ending your session</span></h2>
+    <p><strong><span>Reminder:</span></strong><span> This is a long-lived lab environment. Data is retained until you
+            either use the allocated budget or the course end date is reached (whichever occurs first).</span></p>
+    <p><span>To preserve your budget when you are finished for the day, or when you are finished actively working on the
+            assignment for the time being, do the following:</span></p>
+    <ol start="">
+        <li>
+            <p><span>At the top of this page, choose </span><i class="fas fa-square"></i><span> </span><strong><span>End
+                        Lab</span></strong><span>, and then choose </span><span
+                    id="ssb_blue"><span>Yes</span></span><span> to confirm that you want to end the lab.</span></p>
+            <p><span>A message panel indicates that the lab is terminating.</span></p>
+            <p><i class="fa-solid fa-note-sticky" aria-label="Note icon"></i><span>
+                </span><strong><span>Note:</span></strong><span> Choosing </span><strong><span>End
+                        lab</span></strong><span> in this lab environment will </span><em><span>not</span></em><span>
+                    delete the resource you have created. They will still be there the next time you choose Start lab
+                    (for example, on another day).</span></p>
+        </li>
+    </ol>
+    <ol start="2">
+        <li><span>To close the panel, choose </span><strong><span>Close</span></strong><span> in the upper-right
+                corner.</span></li>
+    </ol>
+    <p>&nbsp;</p>
+    <p><span>© 2023, Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></p>
+</div>
