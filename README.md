@@ -40,7 +40,7 @@ This repository contains the sample code and configuration scripts for the **Bui
 
 ## Architecture Overview
 
-![Architecture Diagram](docs/architecture-diagram.png)
+![Architecture Diagram]([docs/architecture-diagram.png](https://raw.githubusercontent.com/Awesome-Project-Boris/aws-web-application-lab/refs/heads/main/%D7%93%D7%99%D7%90%D7%92%D7%A8%D7%9E%D7%AA%20AWS.png))
 
 1. **VPC** with public and private subnets (minimum two AZs)
 2. **RDS** (MySQL) in private subnets
